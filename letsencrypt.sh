@@ -12,4 +12,4 @@ docker run -it --rm \
      	certbot/certbot certonly \
       	--manual \
      	--preferred-challenges dns \
-     	-d lonyda.com -d www.lonyda.com
+     	-d www.lonyda.com
