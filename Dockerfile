@@ -56,7 +56,7 @@ COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
 # 暴露端口
-EXPOSE 80 
+#EXPOSE 80 
 EXPOSE 443
 
 # 设置容器启动命令
