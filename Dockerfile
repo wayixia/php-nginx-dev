@@ -49,7 +49,7 @@ RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
 WORKDIR /app
 
 # 复制网站文件
-COPY info.php /app/info.php
+COPY info.php /app/www/info.php
 
 # 复制启动脚本并设置权限
 COPY start.sh /start.sh
