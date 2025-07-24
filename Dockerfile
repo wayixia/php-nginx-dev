@@ -1,6 +1,10 @@
 # 使用官方 PHP 基础镜像（包含 FPM）
 FROM php:8.2-fpm
 
+#Maintainer
+LABEL maintainer="wayixia@gmail.com"
+
+
 # 安装 Nginx 和常用工具
 RUN apt-get update && \
     apt-get install -y \
@@ -10,7 +14,26 @@ RUN apt-get update && \
         git \
         vim \
         certbot \
-        python3-certbot-nginx
+        python3-certbot-nginx \
+        mariadb-server
+
+#配置mariadb
+# 复制配置文件（如果有自定义配置文件的话）
+# ADD my.cnf /etc/my.cnf
+
+# 设置环境变量
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=mydb
+ENV MYSQL_USER=lonyda
+ENV MYSQL_PASSWORD=lonyda12$
+
+# 初始化数据库并设置权限
+RUN mysql_install_db --user=mysql \
+    && mysqld_safe --user=mysql & \
+    sleep 10 \
+    && mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" \
+    && mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
+
 
 # 安装常用 PHP 扩展
 RUN docker-php-ext-install pdo pdo_mysql opcache
@@ -47,6 +70,9 @@ RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
 
 # 设置工作目录
 WORKDIR /app
+
+#mysql persist
+VOLUME /var/lib/mysql
 
 # 复制网站文件
 COPY info.php /app/www/info.php
