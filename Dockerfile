@@ -6,8 +6,7 @@ LABEL maintainer="wayixia@gmail.com"
 
 
 # 安装 Nginx 和常用工具
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get update && apt-get install -y \
         nginx \
         supervisor \
         curl \
@@ -15,7 +14,10 @@ RUN apt-get update && \
         vim \
         certbot \
         python3-certbot-nginx \
-        mariadb-server
+        mariadb-server \
+        libfreetype6-dev \
+	libjpeg62-turbo-dev \
+	libpng-dev
 
 #配置mariadb
 # 复制配置文件（如果有自定义配置文件的话）
@@ -36,7 +38,8 @@ RUN mysql_install_db --user=mysql \
 
 
 # 安装常用 PHP 扩展
-RUN docker-php-ext-install pdo pdo_mysql opcache
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install pdo pdo_mysql opcache gd
 
 # 安装 Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
