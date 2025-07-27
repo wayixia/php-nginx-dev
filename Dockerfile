@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 
 #配置mariadb
 # 复制配置文件（如果有自定义配置文件的话）
-# ADD my.cnf /etc/my.cnf
+COPY my.cnf /etc/my.cnf
 
 # 设置环境变量
 ENV MYSQL_ROOT_PASSWORD=root
@@ -36,10 +36,14 @@ RUN mysql_install_db --user=mysql \
     && mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" \
     && mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
 
+COPY mysql_init.sh /mysql_init.sh
+RUN chmod +x /mysql_init.sh
+
+
 
 # 安装常用 PHP 扩展
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install pdo pdo_mysql opcache gd
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # 安装 Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
@@ -84,9 +88,11 @@ COPY info.php /app/www/info.php
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+
 # 暴露端口
 #EXPOSE 80 
 EXPOSE 443
 
 # 设置容器启动命令
 CMD ["/start.sh"]
+CMD ["/mysql_init.sh"]
