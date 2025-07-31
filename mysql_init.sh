@@ -7,4 +7,6 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 fi
 
 # 启动 MariaDB
-exec mysqld_safe
+#exec mysqld_safe
+
+/etc/init.d/mariadb restart

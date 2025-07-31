@@ -17,11 +17,12 @@ RUN apt-get update && apt-get install -y \
         mariadb-server \
         libfreetype6-dev \
 	libjpeg62-turbo-dev \
+        net-tools \
 	libpng-dev
 
 #配置mariadb
 # 复制配置文件（如果有自定义配置文件的话）
-COPY my.cnf /etc/my.cnf
+COPY my.cnf /etc/mysql/conf.d/my.cnf
 
 # 设置环境变量
 ENV MYSQL_ROOT_PASSWORD=root
@@ -36,14 +37,15 @@ RUN mysql_install_db --user=mysql \
     && mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" \
     && mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
 
-COPY mysql_init.sh /mysql_init.sh
-RUN chmod +x /mysql_init.sh
+#COPY mysql_init.sh /mysql_init.sh
+#RUN chmod +x /mysql_init.sh
 
 
 
 # 安装常用 PHP 扩展
-RUN docker-php-ext-install pdo pdo_mysql opcache gd
+RUN docker-php-ext-install mysqli pdo pdo_mysql opcache gd
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-enable mysqli
 
 # 安装 Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
@@ -64,16 +66,20 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # 配置 Supervisor（用于管理多个进程）
-RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
-    echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "[program:nginx]" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "command=/usr/sbin/nginx -g 'daemon off;'" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "[program:php-fpm]" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "command=/usr/local/sbin/php-fpm --nodaemonize" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf
+#RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "[program:nginx]" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "command=/usr/sbin/nginx -g 'daemon off;'" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "[program:php-fpm]" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "command=/usr/local/sbin/php-fpm --nodaemonize" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
+
+
+COPY supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 
 # 设置工作目录
 WORKDIR /app
@@ -92,7 +98,9 @@ RUN chmod +x /start.sh
 # 暴露端口
 #EXPOSE 80 
 EXPOSE 443
+EXPOSE 3306
 
 # 设置容器启动命令
+# CMD ["/mysql_init.sh"]
 CMD ["/start.sh"]
-CMD ["/mysql_init.sh"]
+
