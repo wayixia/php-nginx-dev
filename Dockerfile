@@ -31,11 +31,15 @@ ENV MYSQL_USER=lonyda
 ENV MYSQL_PASSWORD=lonyda12$
 
 # 初始化数据库并设置权限
-RUN mysql_install_db --user=mysql \
-    && mysqld_safe --user=mysql & \
+RUN mariadb-install-db --user=mysql \
+    && mariadbd-safe --user=mysql & \
     sleep 10 \
-    && mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" \
-    && mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
+    && mariadb-admin -u root password "$MYSQL_ROOT_PASSWORD" \
+    && mariadb -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
+
+#mysql persist
+VOLUME /var/lib/mysql
+
 
 #COPY mysql_init.sh /mysql_init.sh
 #RUN chmod +x /mysql_init.sh
@@ -65,27 +69,11 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
 # 配置 Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# 配置 Supervisor（用于管理多个进程）
-#RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "[program:nginx]" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "command=/usr/sbin/nginx -g 'daemon off;'" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "[program:php-fpm]" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "command=/usr/local/sbin/php-fpm --nodaemonize" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-#    echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
-
 
 COPY supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 
 # 设置工作目录
 WORKDIR /app
-
-#mysql persist
-VOLUME /var/lib/mysql
 
 # 复制网站文件
 COPY info.php /app/www/info.php
