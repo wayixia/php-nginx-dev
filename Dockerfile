@@ -17,8 +17,11 @@ RUN apt-get update && apt-get install -y \
         mariadb-server \
         libfreetype6-dev \
 	libjpeg62-turbo-dev \
-        net-tools \
 	libpng-dev
+
+
+# net debug tools
+#net-tools \
 
 #配置mariadb
 # 复制配置文件（如果有自定义配置文件的话）
@@ -39,10 +42,6 @@ RUN mariadb-install-db --user=mysql \
 
 #mysql persist
 VOLUME /var/lib/mysql
-
-
-#COPY mysql_init.sh /mysql_init.sh
-#RUN chmod +x /mysql_init.sh
 
 
 
