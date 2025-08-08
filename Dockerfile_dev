@@ -60,7 +60,7 @@ RUN chmod +x /start.sh
 # 暴露端口
 EXPOSE 80 
 #EXPOSE 443
-EXPOSE 3306
+#EXPOSE 3306
 
 # 设置容器启动命令
 # CMD ["/mysql_init.sh"]
