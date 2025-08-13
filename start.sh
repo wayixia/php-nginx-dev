@@ -4,7 +4,7 @@
 chown -R www-data:www-data /app/www
 
 mkdir -p /var/log/mysql
-chown mysql:mysql /var/log/mysql
+chown -R mysql:mysql /var/log/mysql
 touch /var/log/mysql/mysqld.{err,out}.log
 chown mysql:mysql /var/log/mysql/mysqld.*.log
 
