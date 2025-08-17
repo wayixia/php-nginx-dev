@@ -1,3 +1,14 @@
 #!/bin/bash
 
-docker run -d --name lonyda -v /root/docker:/app -v /root/docker-db:/var/lib/mysql -p 443:443 -p 3306:3306 php-nginx-dev:1.0
+
+local_path=$(cd "$(dirname "$0")"; pwd)
+
+docker run -d --name lonydadev \
+	-v $local_path/example:/app \
+	-v $local_path/example/nginx-sites-enabled:/etc/nginx/sites-enabled \
+	-p 80:80 \
+	-p 9000:9000 \
+	php-nginx-dev:1.0
+
+
+#wayixia/php-nginx-dev:1.0

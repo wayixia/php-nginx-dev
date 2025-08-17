@@ -16,3 +16,18 @@ docker push
 
 ## deploy
 ``` docker run -d --name lonyda -v `pwd`/www/lonyda.com/upload:/app -p 443:443 wayixia/php-nginx-dev:phpnginx ```
+
+
+## template struct 
+
+-root
+  - docker-db
+  - docker--www
+    - www
+    - cert
+    - nginx.conf
+
+
+
+
+
