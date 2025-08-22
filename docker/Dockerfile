@@ -14,35 +14,10 @@ RUN apt-get update && apt-get install -y \
         vim \
         certbot \
         python3-certbot-nginx \
-        mariadb-server \
         libfreetype6-dev \
 	libjpeg62-turbo-dev \
+        net-tools \
 	libpng-dev
-
-
-# net debug tools
-#net-tools \
-
-#配置mariadb
-# 复制配置文件（如果有自定义配置文件的话）
-COPY my.cnf /etc/mysql/conf.d/my.cnf
-
-# 设置环境变量
-ENV MYSQL_ROOT_PASSWORD=root
-ENV MYSQL_DATABASE=mydb
-ENV MYSQL_USER=lonyda
-ENV MYSQL_PASSWORD=lonyda12$
-
-# 初始化数据库并设置权限
-RUN mariadb-install-db --user=mysql \
-    && mariadbd-safe --user=mysql & \
-    sleep 10 \
-    && mariadb-admin -u root password "$MYSQL_ROOT_PASSWORD" \
-    && mariadb -uroot -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'; FLUSH PRIVILEGES;"
-
-#mysql persist
-VOLUME /var/lib/mysql
-
 
 
 # 安装常用 PHP 扩展
@@ -74,9 +49,11 @@ COPY supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
 # 设置工作目录
 WORKDIR /app
 
-# 复制网站文件
-COPY info.php /app/www/info.php
+# 网站
 VOLUME /etc/nginx/sites-enabled
+
+# 复制网站文件
+#COPY info.php /app/www/info.php
 
 # 复制启动脚本并设置权限
 COPY start.sh /start.sh
@@ -84,9 +61,9 @@ RUN chmod +x /start.sh
 
 
 # 暴露端口
-#EXPOSE 80 
-EXPOSE 443
-EXPOSE 3306
+EXPOSE 80 
+#EXPOSE 443
+#EXPOSE 3306
 
 # 设置容器启动命令
 # CMD ["/mysql_init.sh"]
