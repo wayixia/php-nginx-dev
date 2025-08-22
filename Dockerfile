@@ -66,7 +66,7 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
 # 配置 Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+#COPY nginx.conf /etc/nginx/nginx.conf
 
 
 COPY supervisord.conf  /etc/supervisor/conf.d/supervisord.conf
@@ -76,6 +76,7 @@ WORKDIR /app
 
 # 复制网站文件
 COPY info.php /app/www/info.php
+VOLUME /etc/nginx/sites-enabled
 
 # 复制启动脚本并设置权限
 COPY start.sh /start.sh
