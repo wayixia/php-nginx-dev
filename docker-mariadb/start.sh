@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置文件权限
-chown -R www-data:www-data /app/www
+chown -R www-data:www-data /app
 
 mkdir -p /var/log/mysql
 chown -R mysql:mysql /var/log/mysql
